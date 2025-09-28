@@ -1,0 +1,8 @@
+{
+    "crons" : [
+        {
+            "path": "/api/nas-status",
+            "schedule": "0 */2 * * *"
+        }
+    ]
+}
