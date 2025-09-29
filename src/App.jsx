@@ -64,6 +64,7 @@ function App() {
         <header className='main-header'>
           <img src='/logo.png' className='main-logo'/>
           <h1 className='header-title'>NAS Server Monitor</h1>
+          <button onClick={updateDB}>Refresh</button>
         </header>
         { !loading ?
         <StatusCard 
