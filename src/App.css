@@ -34,6 +34,32 @@ body {
   justify-content: center;
   text-align: center;
   max-width: 800px;
+  animation: popUp 0.8s ease-out;
+}
+
+@keyframes popUp {
+  0% {
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes cardPopUp {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+  60% {
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 .main-logo {
@@ -52,6 +78,24 @@ body {
   color: white;
   margin: 0;
   line-height: 1.2;
+}
+
+.refresh-instruction {
+  font-family: "Jura", sans-serif;
+  font-weight: 300;
+  font-size: 0.75rem;
+  letter-spacing: 2px;
+  color: rgba(255, 255, 255, 0.6);
+  margin: -20px;
+  text-align: center;
+  font-style: italic;
+  opacity: 0.8;
+  transition: opacity 0.3s ease;
+  animation: popUp 0.8s ease-out 0.3s both;
+}
+
+.refresh-instruction:hover {
+  opacity: 1;
 }
 
 

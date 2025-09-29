@@ -73,6 +73,11 @@ function App() {
           <img src='/logo.png' className='main-logo'/>
           <h1 className='header-title'>NAS Server Monitor</h1>
         </header>
+        
+        {!loading && (
+          <p className='refresh-instruction'>Click on the status card to refresh server status</p>
+        )}
+        
         { !loading ?
         <StatusCard 
           serverStatus={serverStatus} 
