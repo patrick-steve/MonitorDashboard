@@ -1,4 +1,5 @@
 import { updateServerStatus, getLatestStatus, redis } from '../src/lib/redis.js';
+import Client from 'ssh2-sftp-client';
 
 const NAS_HOST = 'archive.rafflesrocks.com';
 const SFTP_PORT = 5022;
@@ -34,7 +35,6 @@ async function checkServerStatus() {
 }
 
 async function checkSftpStatus() {
-  const Client = require('ssh2-sftp-client');
   const sftp = new Client();
   
   try {
