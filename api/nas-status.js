@@ -1,4 +1,4 @@
-import { kv } from '@vercel/kv';
+import { updateServerStatus, getLatestStatus, redis } from '../src/lib/redis.js';
 
 const NAS_HOST = 'archive.rafflesrocks.com';
 const SFTP_PORT = 5022;
@@ -152,9 +152,13 @@ async function sendAlert(serverStatus, sftpStatus) {
 
 async function shouldSendAlert(currentServerStatus, currentSftpStatus) {
   try {
-    const lastAlert = await kv.get('nas:last_alert');
-    const lastServerStatus = await kv.get('nas:server_status');
-    const lastSftpStatus = await kv.get('nas:sftp_status');
+    const [lastAlert, latestStatus] = await Promise.all([
+      redis.get('nas:last_alert'),
+      getLatestStatus()
+    ]);
+    
+    const lastServerStatus = latestStatus ? { status: latestStatus.serverStatus } : null;
+    const lastSftpStatus = latestStatus ? { status: latestStatus.sftpStatus } : null;
     
     // Send alert if:
     // 1. No previous alert sent, OR
@@ -201,10 +205,15 @@ export default async function handler(req, res) {
     console.log('Server Status:', serverStatus);
     console.log('SFTP Status:', sftpStatus);
     
+    await updateServerStatus(
+      serverStatus.status === 'up' ? 'up' : 'down',
+      sftpStatus.status === 'up' ? 'up' : 'down'
+    );
+    
     await Promise.all([
-      kv.set('nas:server_status', serverStatus),
-      kv.set('nas:sftp_status', sftpStatus),
-      kv.set('nas:last_check', new Date().toISOString())
+      redis.set('nas:server_details', JSON.stringify(serverStatus)),
+      redis.set('nas:sftp_details', JSON.stringify(sftpStatus)),
+      redis.set('nas:last_check', new Date().toISOString())
     ]);
     
     const needsAlert = await shouldSendAlert(serverStatus, sftpStatus);
@@ -212,17 +221,17 @@ export default async function handler(req, res) {
     if (needsAlert && (serverStatus.status === 'down' || sftpStatus.status === 'down')) {
       console.log('Sending alert email...');
       await sendAlert(serverStatus, sftpStatus);
-      await kv.set('nas:last_alert', new Date().toISOString());
+      await redis.set('nas:last_alert', new Date().toISOString());
     }
     
     const historyKey = `nas:history:${Date.now()}`;
-    await kv.set(historyKey, {
+    await redis.set(historyKey, JSON.stringify({
       server: serverStatus,
       sftp: sftpStatus,
       timestamp: new Date().toISOString()
-    });
+    }));
     
-    await kv.expire(historyKey, 24 * 60 * 60);
+    await redis.expire(historyKey, 24 * 60 * 60);
     
     return res.status(200).json({
       success: true,
@@ -247,15 +256,18 @@ export default async function handler(req, res) {
 
 export async function getStatus() {
   try {
-    const [serverStatus, sftpStatus, lastCheck] = await Promise.all([
-      kv.get('nas:server_status'),
-      kv.get('nas:sftp_status'),
-      kv.get('nas:last_check')
+    const [serverDetails, sftpDetails, lastCheck] = await Promise.all([
+      redis.get('nas:server_details'),
+      redis.get('nas:sftp_details'),
+      redis.get('nas:last_check')
     ]);
     
+    const serverStatus = serverDetails ? JSON.parse(serverDetails) : { status: 'unknown', timestamp: null };
+    const sftpStatus = sftpDetails ? JSON.parse(sftpDetails) : { status: 'unknown', timestamp: null };
+    
     return {
-      server: serverStatus || { status: 'unknown', timestamp: null },
-      sftp: sftpStatus || { status: 'unknown', timestamp: null },
+      server: serverStatus,
+      sftp: sftpStatus,
       lastCheck: lastCheck,
     };
   } catch (error) {
