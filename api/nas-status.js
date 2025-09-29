@@ -39,6 +39,8 @@ async function checkSftpStatus() {
   
   try {
     console.log(`Connecting to SFTP at ${NAS_HOST}:${SFTP_PORT}`);
+    console.log('Using username:', process.env.SFTP_USERNAME);
+    console.log('Using password:', process.env.SFTP_PASSWORD);
     
     await sftp.connect({
       host: NAS_HOST,
