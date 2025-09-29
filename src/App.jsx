@@ -36,6 +36,17 @@ function App() {
     }
   }
 
+  const updateDB = async () => {
+    try {
+      const response = await fetch('/api/nas-status', { method: 'POST' });
+      const data = await response.json();
+      console.log('Update DB response:', data);
+    }
+    catch (error) {
+      console.error('Error updating DB:', error);
+    }
+  }
+
   useEffect(() => {
     fetchStatus();
   }, []);
@@ -58,6 +69,7 @@ function App() {
           ftpStatus={ftpStatus} 
           lastChecked={lastChecked}
           imageSrc={ (serverStatus === 'ONLINE' && ftpStatus === 'ONLINE') ? "/up.png" : "/down.png" } 
+          onClick={updateDB}
         />
         : <div className='loading'>
           <img src={LoadingGif} alt="Loading..." />
