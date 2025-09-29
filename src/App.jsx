@@ -37,13 +37,15 @@ function App() {
   }
 
   const updateDB = async () => {
+    console.log('Updating DB...');
     try {
+      console.log('Calling the serverless function ');
       const response = await fetch('/api/nas-status', { method: 'POST' });
       const data = await response.json();
       console.log('Update DB response:', data);
     }
     catch (error) {
-      console.error('Error updating DB:', error);
+      console.log('Error updating DB:', error);
     }
   }
 
