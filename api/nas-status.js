@@ -11,10 +11,12 @@ async function checkServerStatus() {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
     
-    const response = await fetch(`http://${NAS_HOST}`, {
+    const response = await fetch(`https://${NAS_HOST}`, {
       signal: controller.signal,
       method: 'HEAD'
     });
+
+    console.log()
     
     clearTimeout(timeoutId);
     return {
@@ -190,6 +192,11 @@ async function shouldSendAlert(currentServerStatus, currentSftpStatus) {
 }
 
 export default async function handler(req, res) {
+
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
