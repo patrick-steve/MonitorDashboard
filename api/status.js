@@ -12,7 +12,8 @@ async function checkServerStatus() {
       return {
         serverStatus: latestStatus.serverStatus || 'down',
         sftpStatus: latestStatus.sftpStatus || 'down',
-        lastCheck: latestStatus.lastCheck || new Date().toISOString()
+        lastCheck: latestStatus.lastCheck || new Date().toISOString(),
+        message: 'Status retrieved from database'
       }
     } else {
       // If no status found in database, return default offline status
@@ -20,7 +21,8 @@ async function checkServerStatus() {
       return {
         serverStatus: 'down',
         sftpStatus: 'down',
-        lastCheck: new Date().toISOString()
+        lastCheck: new Date().toISOString(),
+        message: 'No status found in database'
       }
     }
   } catch (error) {
@@ -28,7 +30,8 @@ async function checkServerStatus() {
     return {
       serverStatus: 'down',
       sftpStatus: 'down',
-      lastCheck: new Date().toISOString()
+      lastCheck: new Date().toISOString(),
+      message: 'Error reading status from database'
     }
   }
 }
@@ -58,6 +61,7 @@ export default async function handler(req, res) {
       serverStatus: statusData.serverStatus,
       sftpStatus: statusData.sftpStatus,
       lastCheck: statusData.lastCheck,
+      message: statusData.message,
       nextCheck: statusData.lastCheck ? 
           new Date(new Date(statusData.lastCheck).getTime() + (5 * 60 * 1000)).toISOString() : 
           null
