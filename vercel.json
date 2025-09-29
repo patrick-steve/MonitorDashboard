@@ -2,7 +2,6 @@
     "crons" : [
         {
             "path": "/api/nas-status",
-            "method": "POST",
             "schedule": "0 5 * * *"
         }
     ]
