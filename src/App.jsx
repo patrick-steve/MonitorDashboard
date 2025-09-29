@@ -38,14 +38,22 @@ function App() {
 
   const updateDB = async () => {
     console.log('Updating DB...');
+    setLoading(true);
+
     try {
       console.log('Calling the serverless function ');
       const response = await fetch('/api/nas-status', { method: 'POST' });
       const data = await response.json();
       console.log('Update DB response:', data);
+
+      if(response.ok && data.success) {
+        console.log('DB updated successfully');
+        await fetchStatus();
+      }
     }
     catch (error) {
       console.log('Error updating DB:', error);
+      setLoading(false);
     }
   }
 
@@ -64,7 +72,6 @@ function App() {
         <header className='main-header'>
           <img src='/logo.png' className='main-logo'/>
           <h1 className='header-title'>NAS Server Monitor</h1>
-          <button onClick={updateDB}>Refresh</button>
         </header>
         { !loading ?
         <StatusCard 

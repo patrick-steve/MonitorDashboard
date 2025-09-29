@@ -4,10 +4,20 @@ function StatusCard({
   serverStatus = 'ONLINE', 
   ftpStatus = 'ONLINE', 
   imageSrc = '/up.png',
-  lastChecked = new Date().toLocaleString()
+  lastChecked = new Date().toLocaleString(),
+  onClick
 }) {
 
   const hasOfflineStatus = serverStatus.toLowerCase() === 'offline' || ftpStatus.toLowerCase() === 'offline';
+
+  const handleCardClick = (e) => {
+    e.preventDefault();
+    e.stopPropogation();
+
+    if (onClick) {
+      onClick();
+    }
+  }
 
   const formatTime = (timestamp) => {
     if (!timestamp) return 'Never';
@@ -25,7 +35,7 @@ function StatusCard({
   };
 
   return (
-    <div className={`status ${hasOfflineStatus ? 'status-offline' : 'status-online'}`}>
+    <div className={`status ${hasOfflineStatus ? 'status-offline' : 'status-online'}`} onClick={handleCardClick}>
       <div className="status-content">
         <div className="status-image">
           <img src={imageSrc} alt="Status indicator" />
