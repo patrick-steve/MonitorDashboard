@@ -12,7 +12,7 @@ function StatusCard({
 
   const handleCardClick = (e) => {
     e.preventDefault();
-    e.stopPropogation();
+    e.stopPropagation();
 
     if (onClick) {
       onClick();
